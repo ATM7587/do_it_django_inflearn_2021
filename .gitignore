@@ -130,3 +130,4 @@ dmypy.json
 
 # 각 컴퓨터별로 다른 설정이므로 업데이트 적용 X
 .idea/
+migrations/
