@@ -4,8 +4,8 @@ class Post(models.Model):
     title = models.CharField(max_length=50)
     content = models.TextField()
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True) # 생성일자
+    updated_at = models.DateTimeField(auto_now=True)     # 수정일자
     # author: 추후 작성 예정
 
     def __str__(self):
