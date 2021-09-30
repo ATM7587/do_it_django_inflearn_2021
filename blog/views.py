@@ -4,13 +4,13 @@ from .models import Post
 
 class PostList(ListView):
     model = Post
-    template_name = 'blog/index.html'
+    #template_name = 'blog/post_list.html'
     ordering = '-pk'
 
 
 class PostDetail(DetailView):
     model = Post
-    template_name = 'blog/single_page.html'
+    #template_name = 'blog/post_detail.html'
 
 # Create your views here.
 # def index(request):
@@ -18,7 +18,7 @@ class PostDetail(DetailView):
 #
 #     return render(
 #         request,
-#         'blog/index.html', #blog 폴더의 index.html에서 해당 변수를 사용할 수 있게 함
+#         'blog/post_list.html', #blog 폴더의 index.html에서 해당 변수를 사용할 수 있게 함
 #         {
 #             'posts': posts,
 #         }
@@ -29,7 +29,7 @@ class PostDetail(DetailView):
 #
 #     return render(
 #         request,
-#         'blog/single_page.html',
+#         'blog/post_detail.html',
 #         {
 #             'post':post
 #         }
