@@ -75,8 +75,11 @@
             <hr>
 
             <!-- Preview Image -->
+            {% if post.head_image %}
             <img class="img-fluid rounded" src="http://placehold.it/900x300" alt="">
-
+            {% elif not post.head_image %}
+            <img class="img-fluid rounded" src="https://picsum.photos/seed/{{ post.id }}/900/300" alt="">
+            {% endif %}
             <hr>
 
             <!-- Post Content -->
