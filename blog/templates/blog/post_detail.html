@@ -16,6 +16,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
           integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
+    <!--font awesome-->
+    <script src="https://kit.fontawesome.com/c0a3c7d8d8.js" crossorigin="anonymous"></script>
+
     <!-- Custom styles for this template -->
     <link href="{% static 'blog/css/blog-post.css' %}" rel="stylesheet">
 
@@ -76,7 +79,7 @@
 
             <!-- Preview Image -->
             {% if post.head_image %}
-            <img class="img-fluid rounded" src="http://placehold.it/900x300" alt="">
+            <img class="img-fluid rounded" src="{{ post.head_image.url }}" alt="{{ p.title }}">
             {% elif not post.head_image %}
             <img class="img-fluid rounded" src="https://picsum.photos/seed/{{ post.id }}/900/300" alt="">
             {% endif %}
@@ -84,6 +87,22 @@
 
             <!-- Post Content -->
             <p>{{ post.content }}</p>
+
+            {% if post.file_upload %}
+            <a href="{{ post.file_upload.url }}" type="button" class="btn btn-outline-dark" role="button" download>
+                Download :
+                {% if post.get_file_ext == 'xlsx' or post.get_file_ext == 'xls' %}
+                    <i class="far fa-file-excel"></i>
+                {% elif post.get_file_ext == 'csv' %}
+                    <i class="far fa-file-csv"></i>
+                {% elif post.get_file_ext == 'docx' %}
+                    <i class="far fa-file-word"></i>
+                {% else %}
+                    <i class="fas fa-file-alt"></i>
+                {% endif %}
+                {{ post.get_file_name }}</a>
+            {% endif %}
+
             <hr>
 
             <!-- Comments Form -->
