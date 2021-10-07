@@ -14,7 +14,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True) # 생성일자
     updated_at = models.DateTimeField(auto_now=True)     # 수정일자
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     # 해당 포스트의 작성자가 삭제될 때 포스트도 같이 삭제한다.
 
     def __str__(self):
