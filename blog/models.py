@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 import os
 
@@ -12,10 +13,12 @@ class Post(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True) # 생성일자
     updated_at = models.DateTimeField(auto_now=True)     # 수정일자
-    # author: 추후 작성 예정
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    # 해당 포스트의 작성자가 삭제될 때 포스트도 같이 삭제한다.
 
     def __str__(self):
-        return f'[{self.pk}] {self.title}'
+        return f'[{self.pk}] {self.title} :: {self.author}'
 
     def get_absolute_url(self):
         return f'/blog/{self.pk}/'
