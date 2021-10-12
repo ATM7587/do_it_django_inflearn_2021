@@ -16,6 +16,12 @@ class PostList(ListView):
 
 class PostDetail(DetailView):
     model = Post
+
+    def get_context_data(self, **kwargs): # keyword arguments
+        context = super(PostDetail, self).get_context_data()
+        context['categories'] = Category.objects.all()
+        context['no_category_post_count'] = Post.objects.filter(category=None).count()
+        return context
     #template_name = 'blog/post_detail.html'
 
 # Create your views here.

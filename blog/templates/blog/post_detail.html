@@ -5,7 +5,13 @@
 {% endblock %}
 
 {% block main_area %} <!--해당 블록 안의 내용을 위의 blog/base.html에 끼워넣은 것을 post_list.html로 생각하겠다. 라는 뜻-->
+
 <div id="post-area">
+    {% if post.category %}
+    <span class="badge badge-secondary float-right">{{ post.category }}</span>
+    {% else %}
+    <span class="badge badge-secondary float-right">미분류</span>
+    {% endif %}
     <!-- Title -->
     <h1 class="mt-4">{{ post.title }}</h1>
     {% if post.hook_text %}
