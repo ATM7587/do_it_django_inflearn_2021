@@ -10,6 +10,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return f'/blog/category/{self.slug}/' # slug : 모든 문자를 소문자화하고, 공백은 -로 교체
+
     class Meta:
         verbose_name_plural = 'Categories'
     # 복수형이 어떻게 표시될지를 직접 지정함

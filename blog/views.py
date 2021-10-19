@@ -22,7 +22,27 @@ class PostDetail(DetailView):
         context['categories'] = Category.objects.all()
         context['no_category_post_count'] = Post.objects.filter(category=None).count()
         return context
-    #template_name = 'blog/post_detail.html'
+
+def category_page(request, slug):
+    if slug == 'no_category':
+        category = '미분류'
+        post_list = Post.objects.filter(category=None)
+    else:
+        category = Category.objects.get(slug=slug)
+        post_list = Post.objects.filter(category=category)
+    # 이 함수의 인자로 받은 slug와 동일한 slug를 갖는 카테고리를 불러와 저장한다.
+
+    return render(
+        request,
+        'blog/post_list.html',
+        {
+            'post_list': post_list,
+            'categories': Category.objects.all(),
+            'no_category_post_count': Post.objects.filter(category=None).count(),
+            'category': category
+        }
+    )
+#template_name = 'blog/post_detail.html'
 
 # Create your views here.
 # def index(request):

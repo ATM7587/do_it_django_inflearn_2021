@@ -1,7 +1,12 @@
 {% extends 'blog/base.html' %}
 
 {% block main_area %} <!--해당 블록 안의 내용을 위의 blog/base.html에 끼워넣은 것을 post_list.html로 생각하겠다. 라는 뜻-->
-    <h1>Blog</h1>
+    <h1>
+        Blog
+        {% if category %}
+         <span class="badge badge-secondary float-right">{{ category }}</span> <!--views.py 의 37열 category를 사용-->
+        {% endif %}
+    </h1>
 
     {% if post_list.exists %}
 
