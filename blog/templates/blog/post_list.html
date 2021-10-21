@@ -4,7 +4,12 @@
     <h1>
         Blog
         {% if category %}
-         <span class="badge badge-secondary float-right">{{ category }}</span> <!--views.py 의 37열 category를 사용-->
+            <span class="badge badge-secondary">{{ category }}</span> <!--views.py 의 37열 category를 사용-->
+        {% endif %}
+        {% if tag %}
+            <span class="badge badge-light">
+                <is class="fas fa-tags"></is>{{ tag }} ({{ tag.post_set.count }})
+            </span>
         {% endif %}
     </h1>
 

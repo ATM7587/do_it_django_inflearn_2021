@@ -11,7 +11,7 @@ class Category(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return f'/blog/category/{self.slug}/' # slug : 모든 문자를 소문자화하고, 공백은 -로 교ㅆ
+        return f'/blog/category/{self.slug}/' # slug : 모든 문자를 소문자화하고, 공백은 -로 교체
 
     class Meta:
         verbose_name_plural = 'Categories'
