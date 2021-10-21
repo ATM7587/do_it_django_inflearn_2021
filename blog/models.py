@@ -11,11 +11,23 @@ class Category(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return f'/blog/category/{self.slug}/' # slug : 모든 문자를 소문자화하고, 공백은 -로 교체
+        return f'/blog/category/{self.slug}/' # slug : 모든 문자를 소문자화하고, 공백은 -로 교ㅆ
 
     class Meta:
         verbose_name_plural = 'Categories'
     # 복수형이 어떻게 표시될지를 직접 지정함
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=200, unique=True, allow_unicode=True)
+    # 텍스트로 고유 URL을 만들 때 주로 사용함 / allow_unicode로 한글로도 작성할 수 있게 함
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return f'/blog/tag/{self.slug}/' # slug : 모든 문자를 소문자화하고, 공백은 -로 교체
+
 
 class Post(models.Model):
     title = models.CharField(max_length=50)
@@ -33,6 +45,7 @@ class Post(models.Model):
     # 해당 포스트의 작성자가 삭제될 때 포스트도 같이 삭제한다.
 
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
+    tags = models.ManyToManyField(Tag, blank=True) # 카테고리는 여러개 지정하고, 없앨 수 있기 때문에, on_delete는 사옹하지 않는다.
 
     def __str__(self):
         return f'[{self.pk}] {self.title} :: {self.author}'
