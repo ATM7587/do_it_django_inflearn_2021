@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
 from .models import Post, Category, Tag
 
 class PostList(ListView):
@@ -22,6 +22,12 @@ class PostDetail(DetailView):
         context['categories'] = Category.objects.all()
         context['no_category_post_count'] = Post.objects.filter(category=None).count()
         return context
+
+
+class PostCreate(CreateView): # 글 작성 페이지에 있으면 하는 것들을 Post 모델에서 선택할 것
+    model = Post # template 이름을 지정하지 않을 시 post_form.html 을 기본값으로 가지게 됨
+    fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category']
+
 
 def category_page(request, slug):
     if slug == 'no_category':
