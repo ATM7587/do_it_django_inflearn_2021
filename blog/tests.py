@@ -9,8 +9,16 @@ from .models import Post, Category, Tag
 class TestView(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user_trump = User.objects.create_user(username='trump', password='somepassword')
-        self.user_obama = User.objects.create_user(username='obama', password='somepassword')
+        self.user_trump = User.objects.create_user(
+            username='trump',
+            password='somepassword'
+        )
+        self.user_obama = User.objects.create_user(
+            username='obama',
+            password='somepassword'
+        )
+        self.user_obama.is_staff = True #user_obama에게 staff 권한을 줌
+        self.user_obama.save() #user_obama에게 staff 권한을 준 채로 저장함
 
         self.category_programming = Category.objects.create(
             name='programming', slug='programming'
@@ -230,15 +238,17 @@ class TestView(TestCase):
     def test_create_post_without_login(self):
         response = self.client.get('/blog/create_post/')
         self.assertNotEqual(response.status_code, 200)
-        
 
     def test_create_post_with_login(self):
         self.client.login(username='trump', password='somepassword')
         response = self.client.get('/blog/create_post/')
-        
-        self.assertEqual(response.status_code, 200)
-        soup = BeautifulSoup(response.content, 'html.parser')
+        self.assertNotEqual(response.status_code, 200) # staff 권한이 없어서 들어갈 수 없다.
 
+        self.client.login(username='obama', password='somepassword')
+        response = self.client.get('/blog/create_post/')
+        self.assertEqual(response.status_code, 200) # staff 권한이 있어서 들어갈 수 있있.
+
+        soup = BeautifulSoup(response.content, 'html.parser')
         self.assertEqual('Create Post - Blog', soup.title.text)
         main_area = soup.find('div', id='main-area')
         self.assertIn('Create a New Post', main_area.text)
@@ -253,5 +263,5 @@ class TestView(TestCase):
 
         last_post = Post.objects.last()
         self.assertEqual(last_post.title, 'Post Form 만들기')
-        self.assertEqual(last_post.author.username, 'trump')
+        self.assertEqual(last_post.author.username, 'obama')
         self.assertEqual(last_post.content, 'Post Form 페이지를 만듭시다.')

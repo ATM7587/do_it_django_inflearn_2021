@@ -1,6 +1,11 @@
 {% extends 'blog/base.html' %}
 
 {% block main_area %} <!--해당 블록 안의 내용을 위의 blog/base.html에 끼워넣은 것을 post_list.html로 생각하겠다. 라는 뜻-->
+    {% if user.is_authenticated %} <!-- 로그인 중일 때에만 보이도록 함 -->
+        {% if user.is_superuser or user.is_staff %}
+            <a type="button" href="/blog/create_post/" class="btn btn-info btn-sm float-right"><i class="fas fa-pen"></i>&nbsp;&nbsp;New Post</a>
+        {% endif %}
+    {% endif %}
     <h1>
         Blog
         {% if category %}
