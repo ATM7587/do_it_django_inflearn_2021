@@ -17,8 +17,8 @@ class TestView(TestCase):
             username='obama',
             password='somepassword'
         )
-        self.user_obama.is_staff = True #user_obama에게 staff 권한을 줌
-        self.user_obama.save() #user_obama에게 staff 권한을 준 채로 저장함
+        self.user_obama.is_staff = True  # user_obama에게 staff 권한을 줌
+        self.user_obama.save()  # user_obama에게 staff 권한을 준 채로 저장함
 
         self.category_programming = Category.objects.create(
             name='programming', slug='programming'
@@ -119,10 +119,11 @@ class TestView(TestCase):
         self.assertIn(self.tag_python_kor.name, post_003_card.text)
         self.assertIn(self.tag_python.name, post_003_card.text)
 
-        self.assertIn(self.user_trump.username.upper(),  main_area.text)
-        self.assertIn(self.user_obama.username.upper(),  main_area.text)
+        self.assertIn(self.user_trump.username.upper(), main_area.text)
+        self.assertIn(self.user_obama.username.upper(), main_area.text)
 
         # 포스트가 없는
+
     def test_post_list_without_post(self):
         Post.objects.all().delete()
         self.assertEqual(Post.objects.count(), 0)
@@ -205,7 +206,7 @@ class TestView(TestCase):
         self.assertIn(self.post_001.content, post_area.text)
 
     def test_category_page(self):
-        response = self.client.get(self.category_programming.get_absolute_url()) # 해당 카테고리의 절대경로로 가도록 함
+        response = self.client.get(self.category_programming.get_absolute_url())  # 해당 카테고리의 절대경로로 가도록 함
         self.assertEqual(response.status_code, 200)
 
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -225,7 +226,7 @@ class TestView(TestCase):
         soup = BeautifulSoup(response.content, 'html.parser')
 
         self.navbar_test(soup)
-        self.category_card_test(soup) # 별다른 조건이 없으면 존재하는지 확인
+        self.category_card_test(soup)  # 별다른 조건이 없으면 존재하는지 확인
 
         self.assertIn(self.tag_hello.name, soup.h1.text)
         main_area = soup.find('div', id='main-area')
@@ -242,11 +243,11 @@ class TestView(TestCase):
     def test_create_post_with_login(self):
         self.client.login(username='trump', password='somepassword')
         response = self.client.get('/blog/create_post/')
-        self.assertNotEqual(response.status_code, 200) # staff 권한이 없어서 들어갈 수 없다.
+        self.assertNotEqual(response.status_code, 200)  # staff 권한이 없어서 들어갈 수 없다.
 
         self.client.login(username='obama', password='somepassword')
         response = self.client.get('/blog/create_post/')
-        self.assertEqual(response.status_code, 200) # staff 권한이 있어서 들어갈 수 있있.
+        self.assertEqual(response.status_code, 200)  # staff 권한이 있어서 들어갈 수 있있.
 
         soup = BeautifulSoup(response.content, 'html.parser')
         self.assertEqual('Create Post - Blog', soup.title.text)
@@ -265,3 +266,42 @@ class TestView(TestCase):
         self.assertEqual(last_post.title, 'Post Form 만들기')
         self.assertEqual(last_post.author.username, 'obama')
         self.assertEqual(last_post.content, 'Post Form 페이지를 만듭시다.')
+
+    def test_update_post(self):
+        update_post_url = f'/blog/update_post/{self.post_003.pk}/'
+
+        # 로그인 하지 않은 상태에서 접근 하는 경우
+        response = self.client.get(update_post_url)
+        self.assertNotEqual(response.status_code, 200)
+
+        # 로그인은 했지만, 작성자가 아닌 경우
+        self.assertNotEqual(self.post_003.author, self.user_trump)
+        self.client.login(username='trump', password='somepassword')
+        response = self.client.get(update_post_url)
+        self.assertNotEqual(response.status_code, 200) # user_obama가 아니므로 정상실행이 되지 않음
+
+        # 작성자(obama)가 접근하는 경우
+        self.assertEqual(self.post_003.author, self.user_obama)
+        self.client.login(username='obama', password='somepassword')
+        response = self.client.get(update_post_url)
+        self.assertEqual(response.status_code, 200) # user_obama 이므로 정상적으로 실행됨
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        self.assertEqual('Edit Post - Blog', soup.title.text)
+        main_area = soup.find('div', id='main-area')
+        self.assertIn('Edit Post', main_area.text)
+
+        response = self.client.post(
+            update_post_url,
+            {
+                'title': '세 번째 포스트를 수정했습니다.',
+                'content': '안녕 세계? 우리는 하나!',
+                'category': self.category_music.pk
+            },
+            follow=True
+        )
+        soup = BeautifulSoup(response.content, 'html.parser')
+        main_area = soup.find('div', id='main-area')
+        self.assertIn('세 번째 포스트를 수정했습니다.', main_area.text)
+        self.assertIn('안녕 세계? 우리는 하나!', main_area.text)
+        self.assertIn(self.category_music.name, main_area.text)

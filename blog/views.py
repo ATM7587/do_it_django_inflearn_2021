@@ -1,5 +1,6 @@
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post, Category, Tag
 
@@ -40,6 +41,18 @@ class PostCreate(LoginRequiredMixin, UserPassesTestMixin, CreateView): #LoginReq
         else:
             return redirect('/blog/') # 로그인하지 않았을 경우에는 /blog/로 보낸다.
 
+
+class PostUpdate(LoginRequiredMixin, UpdateView):
+    model = Post
+    fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category']
+    template_name = 'blog/post_update_form.html'
+    def dispatch(self, request, *args, **kwargs): #args : 여러개의 인자를 튜플형태로 가져옴 / kwargs : 키워드 형태로 가져옴 / #dispatch : get 방식인지 post방식인지를 구분해준다.
+        if request.user.is_authenticated and request.user == self.get_object().author:
+            return super(PostUpdate, self).dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied # 다른 권한이 없으므로 200이 뜨지 않음
+
+
 def category_page(request, slug):
     if slug == 'no_category':
         category = '미분류'
@@ -59,6 +72,7 @@ def category_page(request, slug):
             'category': category
         }
     )
+
 
 def tag_page(request, slug):
     tag = Tag.objects.get(slug=slug)
