@@ -1,5 +1,6 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
+from django.utils.text import slugify
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post, Category, Tag
@@ -36,8 +37,26 @@ class PostCreate(LoginRequiredMixin, UserPassesTestMixin, CreateView): #LoginReq
     def form_valid(self, form):
         current_user = self.request.user # request : 요청을 하는 클라이언트에 대한 정보를 담음
         if current_user.is_authenticated and (current_user.is_staff or current_user.is_superuser): # 로그인 한 상태면 True를 반환, 로그인하지 않은 상태면 False를 반환
-            form.instance.author = current_user # form 클래스로 만들어진 인스턴스의 author 필드에 current_user를 채워넣는다.
-            return super(PostCreate, self).form_valid(form)
+            form.instance.author = current_user # form 클래스로 만들어진 인스턴스의 author 필드에 current_user(현재 로그인한 사용자)를 채워넣는다.
+            response = super(PostCreate, self).form_valid(form)
+
+            tags_str = self.request.POST.get('tags_str')
+            if tags_str:
+                tags_str = tags_str.strip() # 문자열 앞뒤에 빈 문자열일 있을 경우 없애줌
+                tags_str = tags_str.replace(',', ';') # 문자열 사이에 ','가 있을 경우 ';'로 바꿔줌
+                tags_list = tags_str.split(';') # ; 을 기준으로 문자열들을 구분해줌
+
+                for t in tags_list:
+                    t = t.strip()
+                    tag, is_tag_created = Tag.objects.get_or_create(name=t)
+                    # name이 t 인 것이 있으면 get 하고 name이 t인 것이 없으면 만든 다음에 가져오게 한다.(변수 tag)
+                    # 새로 만든 경우에는 is_tag_created가 true, 기존에 있던 경우에는 false로 반환된다.
+                    if is_tag_created:
+                        tag.slug = slugify(t, allow_unicode=True) # allow_unicode : 한국어로 작성해도 인식할 수 있도록 해준다.
+                        # admin에서와 달리 자동으로 slug를 만들어주지 않기 때문에 모듈을 import해서 만들어주도록 한다.
+                        tag.save()
+                    self.object.tags.add(tag) # 새로 만든 태그가 object(이 경우에는 새로 만든 포스트)에 추가된다.
+            return response
         else:
             return redirect('/blog/') # 로그인하지 않았을 경우에는 /blog/로 보낸다.
 
