@@ -57,6 +57,7 @@ class PostCreate(LoginRequiredMixin, UserPassesTestMixin, CreateView): #LoginReq
                         tag.save()
                     self.object.tags.add(tag) # 새로 만든 태그가 object(이 경우에는 새로 만든 포스트)에 추가된다.
             return response
+
         else:
             return redirect('/blog/') # 로그인하지 않았을 경우에는 /blog/로 보낸다.
 
@@ -65,11 +66,48 @@ class PostUpdate(LoginRequiredMixin, UpdateView):
     model = Post
     fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category']
     template_name = 'blog/post_update_form.html'
-    def dispatch(self, request, *args, **kwargs): #args : 여러개의 인자를 튜플형태로 가져옴 / kwargs : 키워드 형태로 가져옴 / #dispatch : get 방식인지 post방식인지를 구분해준다.
+
+    def dispatch(self, request, *args, **kwargs): # args : 여러개의 인자를 튜플형태로 가져옴 / kwargs : 키워드 형태로 가져옴 / #dispatch : get 방식인지 post방식인지를 구분해준다.
         if request.user.is_authenticated and request.user == self.get_object().author:
             return super(PostUpdate, self).dispatch(request, *args, **kwargs)
         else:
             raise PermissionDenied # 다른 권한이 없으므로 200이 뜨지 않음
+
+    def get_context_data(self, **kwargs):
+        context = super(PostUpdate, self).get_context_data()
+        # 기본적으로 UpdateView에서 제공하는 get_context_data를 사용하기 위해 super를 사용
+        if self.object.tags.exists():
+            tags_str_list = list()
+            for t in self.object.tags.all():
+                tags_str_list.append(t.name)
+            # 존재하는 tag를 해당 포스트에 추가한다.
+            context['tags_str_default'] = '; '.join(tags_str_list)
+            # 존재하는 tag들(list의 요소들로 존재함)을 ; 로 구분해서 합친다. 이를 context로 저장한다.
+        return context
+
+    def form_valid(self, form):
+        response = super(PostUpdate, self).form_valid(form)
+        self.object.tags.clear()
+        # 해당 post에 연결되어 있는 tag들과의 연결을 끊어줌(tag 자체가 사라지는 것은 아님)
+
+        tags_str = self.request.POST.get('tags_str')
+        if tags_str:
+            tags_str = tags_str.strip()  # 문자열 앞뒤에 빈 문자열일 있을 경우 없애줌
+            tags_str = tags_str.replace(',', ';')  # 문자열 사이에 ','가 있을 경우 ';'로 바꿔줌
+            tags_list = tags_str.split(';')  # ; 을 기준으로 문자열들을 구분해줌
+
+            for t in tags_list:
+                t = t.strip()
+                tag, is_tag_created = Tag.objects.get_or_create(name=t)
+                # name이 t 인 것이 있으면 get 하고 name이 t인 것이 없으면 만든 다음에 가져오게 한다.(변수 tag)
+                # 새로 만든 경우에는 is_tag_created가 true, 기존에 있던 경우에는 false로 반환된다.
+                if is_tag_created:
+                    tag.slug = slugify(t, allow_unicode=True)  # allow_unicode : 한국어로 작성해도 인식할 수 있도록 해준다.
+                    # admin에서와 달리 자동으로 slug를 만들어주지 않기 때문에 모듈을 import해서 만들어주도록 한다.
+                    tag.save()
+                self.object.tags.add(tag)  # 새로 만든 태그가 object(이 경우에는 새로 만든 포스트)에 추가된다.
+
+        return response
 
 
 def category_page(request, slug):
