@@ -1,5 +1,5 @@
 {% extends 'blog/base_full_width.html' %}
-
+{% load crispy_forms_tags %}
 {% block head_title %}Edit Post - Blog{% endblock %}
 
 {% block main_area %}
@@ -9,11 +9,12 @@
 
 <form method="post" enctype="multipart/form-data">{% csrf_token %} <!--그때그때 token을 생성해서 유효한 요청인지를 확인 후 작업 -->
     <table>
-        {{ form }}
-        <tr>
-            <th><label for="id_tags_str">Tags:</label></th>
-            <td><input type="text" name="tags_str" id="id_tags_str" value="{{ tags_str_default }}"></td>
-        </tr>
+        {{ form | crispy }}
+        <div id="div_id_tags_str">
+            <label for="id_tags_str">Tags:</label>
+            <!--장고에서 제공하는 form이 아니기 때문에 crispy가 적용되지 않는다. 테이블 형식이 아닌 'div' 형식으로 변경 -->
+            <input type="text" name="tags_str" id="id_tags_str"  class="textinput textInput form-control" value="{{ tags_str_default }}">
+        </div>
     </table>
     <button type="submit" class="btn btn-primary float-right" >
     Submit

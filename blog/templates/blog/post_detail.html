@@ -44,7 +44,8 @@
     <hr>
 
     <!-- Post Content -->
-    <p>{{ post.content }}</p>
+    <p>{{ post.get_content_markdown | safe }}</p>
+    <!-- safe 를 사용하지 않으면 html용 기호들을 문자가 아닌 html용 기호들로 인지함-->
 
     {% if post.file_upload %}
     <a href="{{ post.file_upload.url }}" type="button" class="btn btn-outline-dark" role="button" download>

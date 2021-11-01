@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('blog/', include('blog.urls')), # blog 주소로 갈시, blog안의 urls.py에서 작업할 것
     path('admin/', admin.site.urls),
+    path('markdownx/', include('markdownx.urls')),
     path('', include('single_pages.urls'))
 ]
 

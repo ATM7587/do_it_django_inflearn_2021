@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
 
+    'crispy_forms',
+    'markdownx',
+
     'blog',
     'single_pages',
 ]
@@ -132,3 +135,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '_media') # 실제 파일은 _media에 저�
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
