@@ -38,6 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google', # admin 페이지 application provider 에 구글이 나타나게 함
 
     'crispy_forms',
     'markdownx',
@@ -137,3 +143,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '_media') # 실제 파일은 _media에 저�
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+ACCOUNT_EMAIL_REQUIRED = True  # 가입할 때 이메일 주소를 필요로 함
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # 회원가입할 때 해당 이메일에 가입확인 이메일을 보낼 지 여부
+
+LOGIN_REDIRECT_URL = '/blog/' # 로그인 했을 때 /blog url로 이동하게 한다.
