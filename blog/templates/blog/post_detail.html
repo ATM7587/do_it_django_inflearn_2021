@@ -88,46 +88,21 @@
         </div>
     </div>
 
+    {% if post.comment_set.exists %}
+        {% for comment in post.comment_set.iterator %}
+    <!-- iterator() 레코드는 전체 레코드의 일부만 DB에서 가져오므로 메모리를 절약할 수 있다. -->
     <!-- Single Comment -->
-    <div class="media mb-4">
-        <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-        <div class="media-body">
-            <h5 class="mt-0">Commenter Name</h5>
-            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras
-            purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi
-            vulputate fringilla. Donec lacinia congue felis in faucibus.
-        </div>
-    </div>
-
-    <!-- Comment with nested comments -->
-    <div class="media mb-4">
-        <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-        <div class="media-body">
-            <h5 class="mt-0">Commenter Name</h5>
-            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras
-            purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi
-            vulputate fringilla. Donec lacinia congue felis in faucibus.
-
-            <div class="media mt-4">
-                <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                <div class="media-body">
-                    <h5 class="mt-0">Commenter Name</h5>
-                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin.
-                    Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc
-                    ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                </div>
-            </div>
-
-            <div class="media mt-4">
-                <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                <div class="media-body">
-                    <h5 class="mt-0">Commenter Name</h5>
-                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin.
-                    Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc
-                    ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                </div>
+        <div class="media mb-4" id="comment-{{ comment.pk }}">
+            <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+            <div class="media-body">
+                <h5 class="mt-0">{{ comment.author.username }}<small class="text-muted float-right" style="padding-right:15px">{{ comment.created_at }}</small></h5>
+                {{ comment.content | linebreaks }}
+                <!--linebreaks : 다른 마크다운 등의 html은 사용되지 않더라도, 줄바꿈은 사용할 수 있게 된다.-->
             </div>
         </div>
-    </div>
+        {% endfor %}
+    {% endif %}
+
+
 </div>
 {% endblock %}

@@ -65,3 +65,17 @@ class Post(models.Model):
 
     def get_content_markdown(self):
         return markdown(self.content) # self.content를 마크다운화한 모델을 사용함
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE) # 포스트가 삭제될 때 댓글도 함께 삭제된다.
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField() # 누구든 남길 수 있기 때문에 마크다운을 허용하면 게시글이 지저분해질 수 있음
+    created_at = models.DateTimeField(auto_now_add=True)  # 생성일자 / auto_now_add : 최초저장시에만 현재시간 저장
+    updated_at = models.DateTimeField(auto_now=True)  # 수정일자 / auto_now : 저장할 때마다 현재시간으로 저장
+
+    def __str__(self): # admin 페이지 등에서 Comment가 어떻게 보여질지를 설정한다.
+        return f'{self.author}::{self.content}'
+
+    def get_absolute_url(self):
+        return f'{self.post.get_absolut_url()}#comment-{self.pk}' # '#'은 html에서의 id를 의미한다. comment 중에서 현재
