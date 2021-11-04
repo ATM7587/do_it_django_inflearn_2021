@@ -78,4 +78,4 @@ class Comment(models.Model):
         return f'{self.author}::{self.content}'
 
     def get_absolute_url(self):
-        return f'{self.post.get_absolut_url()}#comment-{self.pk}' # '#'은 html에서의 id를 의미한다. comment 중에서 현재
+        return f'{self.post.get_absolute_url()}#comment-{self.pk}' # '#'은 html에서의 id를 의미한다. comment 중에서 현재

@@ -1,9 +1,11 @@
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.text import slugify
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
 from .models import Post, Category, Tag
+from .forms import CommentForm
 
 class PostList(ListView):
     model = Post
@@ -24,6 +26,7 @@ class PostDetail(DetailView):
         context = super(PostDetail, self).get_context_data()
         context['categories'] = Category.objects.all()
         context['no_category_post_count'] = Post.objects.filter(category=None).count()
+        context['comment_form'] = CommentForm
         return context
 
 
@@ -145,6 +148,25 @@ def tag_page(request, slug):
             'tag': tag
         }
     )
+
+def new_comment(request, pk):
+    if request.user.is_authenticated:
+        post = get_object_or_404(Post, pk=pk)
+        # 존재하지 않는 pk 값을 가지고 있는 포스트를 요청했을 때 404 에러를 발생시킴
+
+        if request.method == 'POST':
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid(): # form이 정상적으로 작성되었을 경우 해당 내용으로 레코드를 만들어 db에 저장한다.
+                comment = comment_form.save(commit=False) # db에 커밋하지 말 것
+                comment.post = post
+                comment.author = request.user
+                comment.save()
+                return redirect(comment.get_absolute_url()) # 상단의 post 필드와 author 필드를 채운 후에 저장한다.
+        return redirect(post.get_absolute_url()) # get 방식으로 요청하거나 form의 형식이 올바르지 않을 경우 현 포스트 상세페이지로 리다이렉트한다.
+    else:
+        raise PermissionError # 권한이 없음을 나타냄
+
+
 #template_name = 'blog/post_detail.html'
 
 # Create your views here.

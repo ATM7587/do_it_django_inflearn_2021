@@ -224,6 +224,56 @@ class TestView(TestCase):
         self.assertIn(self.comment_001.author.username, comment_001_area.text)  # comment_001 안에 작성자 이름도 있게 할 것
         self.assertIn(self.comment_001.content, comment_001_area.text)
 
+    def tst_comment_form(self):
+        self.assertEqual(Comment.objects.count(), 1)
+        self.assertEqual(self.post_001.comment_set.count(), 1)
+
+        # 로그인 하지 않은 상태
+        response = self.client.get(self.post_001.get_absolute_url())
+        # 로그인하지 않은 상태에서 해당 페이지를 연다.
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html_parser')
+
+        comment_area = soup.find('div', id='comment-area') # 상세페이지에서 답글이 적혀 있는 영역
+        self.assertIn('Log in and leave a comment', comment_area.text)
+        self.assertFalse(comment_area.find('form', id='comment-form'))
+        # 로그인하지 않은 경우에는 id가 'comment-form'인 form이 존재하지 않아야 한다.
+
+        # 로그인 한 상태
+        self.client.login(username='obama', password='somepassword')
+        response = self.client.get(self.post_001.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html_parser')
+
+        comment_area = soup.find('div', id='comment-area')  # 상세페이지에서 답글이 적혀 있는 영역
+        self.assertNotIn('Log in and leave a comment', comment_area.text)
+
+        comment_form = comment_area.find('form', id='comment-form')
+        self.assertTrue(comment_form.find('textarea', id='id_content'))
+        response = self.client.post(
+            self.post_001.get_absolute_url + 'new_comment/',
+            {
+                'content': '오바마의 댓글입니다.'
+            },
+            follow=True # 서버에서 post를 처리한 후 리다이렉트될 때, 따라가도록 설정해줌
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(Comment.objects.count(), 2)
+        self.assertEqual(self.post_001.comment_set.count(), 2)
+
+        new_comment = Comment.objects.last()
+        soup = BeautifulSoup(response.content, 'html.parser')
+        self.assertIn(new_comment.post.title, ) # 새롭게 댓글이 달린 포스트페이지의 타이틀에 이름이 제대로 붙어있는지
+
+        comment_area = soup.find('div', id='comment-area')
+        new_comment_div = comment_area.find('div', id=f'comment-{new_comment.pk}')
+        self.assertIn('obama', new_comment_div.text)
+        self.assertIn('오바마의 댓글입니다.', new_comment_div.text)
+
+
+
     def test_category_page(self):
         response = self.client.get(self.category_programming.get_absolute_url())  # 해당 카테고리의 절대경로로 가도록 함
         self.assertEqual(response.status_code, 200)
