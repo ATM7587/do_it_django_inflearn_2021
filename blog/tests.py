@@ -1,3 +1,4 @@
+from time import sleep
 from django.test import TestCase, Client
 from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
@@ -272,6 +273,64 @@ class TestView(TestCase):
         self.assertIn('obama', new_comment_div.text)
         self.assertIn('오바마의 댓글입니다.', new_comment_div.text)
 
+
+    def test_comment_update(self):
+        comment_by_trump = Comment.objects.create(
+            post=self.post_001,
+            author=self.user_trump,
+            content='트럼프의 댓글입니다.'
+        )
+        response = self.client.get(self.post_001.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        comment_area = soup.find('div', id='comment-area')
+        self.assertFalse(comment_area.find('a', id='comment-1-update-btn'))
+        # 로그인하지 않은 경우에는 수정 보튼이 보이지 않음
+        self.assertFalse(comment_area.find('a', id='comment-2-update-btn'))
+
+
+        # obama로 로그인 한 상태
+        self.client.login(username='obama', password='somepassword')
+        response = self.client.get(self.post_001.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        comment_area = soup.find('div', id='comment-area')
+        self.assertTrue(comment_area.find('a', id='comment-1-update-btn'))
+        # 오바마로 로그인한 경우에는 오바마가 작성한 댓글의 수정버튼이 나타남
+        self.assertFalse(comment_area.find('a', id='comment-2-update-btn'))
+
+        comment_001_update_btn = comment_area.find('a', id='comment-1-update-btn')
+        self.assertIn('edit', comment_001_update_btn.text)
+        self.assertEqual(comment_001_update_btn.attrs['href'], '/blog/update_comment/1/')
+        # 위의 href 주소(update_comment/pk값/) 이 댓글을 수정하는 페이지로 이동하는 주소가 되도록 설정
+
+        response = self.client.get('/blog/update_comment/1/')
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        self.assertEqual('Edit Comment - Blog', soup.title.text)
+        update_comment_form = soup.find('form', id='comment-form')
+        # Edit Comment 페이지 안에는 하나의 댓글만 나타나기 때문에 pk를 작성할 필요가 없다.
+        content_textarea = update_comment_form.find('textarea', id='id_content')
+        # 장고에서 만드는 방식 / 해당 field의 id를 작성하고 그 이후에 '_content'를 붙여준다.
+        self.assertIn(self.comment_001.content, content_textarea.text)
+        sleep(2)
+
+        response = self.client.post(
+            '/blog/update_comment/1/',
+            {
+                'content': '오바마의 댓글을 수정합니다.'
+            },
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        comment_001_div = soup.find('div', id='comment-1')
+        self.assertIn('오바마의 댓글을 수정합니다.', comment_001_div.text)
+        self.assertIn('Updated: ', comment_001_div.text)
 
 
     def test_category_page(self):

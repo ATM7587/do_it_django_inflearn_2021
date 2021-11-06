@@ -3,6 +3,7 @@ from django.db import models
 import os
 from markdownx.utils import markdown
 from markdownx.models import MarkdownxField
+from datetime import timedelta
 
 
 
@@ -79,3 +80,7 @@ class Comment(models.Model):
 
     def get_absolute_url(self):
         return f'{self.post.get_absolute_url()}#comment-{self.pk}' # '#'은 html에서의 id를 의미한다. comment 중에서 현재
+
+    def is_updated(self):
+        return self.updated_at - self.created_at > timedelta(seconds=1)
+        # 처음 작성된 시간과, 마지막으로 수정된 시간이 1초 이상 차이나면 나타남

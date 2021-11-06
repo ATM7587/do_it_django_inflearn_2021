@@ -27,8 +27,9 @@
 
     <hr>
 
-     {% if user.is_authenticated and user == post.author %} <!-- 로그인 중일 때에만 보이도록 함 -->
-            <a type="button" href="/blog/update_post/{{ post.pk }}" class="btn btn-info btn-sm float-right"><i class="fas fa-pen"></i>&nbsp;&nbsp;Edit Post</a>
+    {% if user.is_authenticated and user == post.author %} <!-- 로그인 중일 때에만 보이도록 함 -->
+    <a type="button" href="/blog/update_post/{{ post.pk }}" class="btn btn-info btn-sm float-right"><i
+            class="fas fa-pen"></i>&nbsp;&nbsp;Edit Post</a>
     {% endif %}
 
     <!-- Date/Time -->
@@ -44,7 +45,7 @@
     {% endif %}
     <hr>
 
-     <!-- Post Content -->
+    <!-- Post Content -->
     <p>{{ post.get_content_markdown | safe }}</p>
     <!-- safe 를 사용하지 않으면 html용 기호들을 문자가 아닌 html용 기호들로 인지함-->
 
@@ -84,30 +85,45 @@
             <form id="comment-form" method="POST" action="{{ post.get_absolute_url }}new_comment/">
                 {% csrf_token %}
                 <div class="form-group">
-                  {{ comment_form | crispy }}
+                    {{ comment_form | crispy }}
                     <!-- forms.py 에서 만든 CommentForm을, vies.py 에서 comment_form으로 읽고 쓸 수 있도록 함-->
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
             {% else %}
-                <a role="button" type="button" class="btn btn-outline-dark btn-block btn-sm" href="#" data-toggle="modal" data-target="#loginModal">Log in and leave a comment</a>
+            <a role="button" type="button" class="btn btn-outline-dark btn-block btn-sm" href="#" data-toggle="modal"
+               data-target="#loginModal">Log in and leave a comment</a>
             {% endif %}
         </div>
     </div>
 
     {% if post.comment_set.exists %}
-        {% for comment in post.comment_set.iterator %}
+    {% for comment in post.comment_set.iterator %}
     <!-- iterator() 레코드는 전체 레코드의 일부만 DB에서 가져오므로 메모리를 절약할 수 있다. -->
     <!-- Single Comment -->
-        <div class="media mb-4" id="comment-{{ comment.pk }}">
-            <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-            <div class="media-body">
-                <h5 class="mt-0">{{ comment.author.username }}<small class="text-muted float-right" style="padding-right:15px">{{ comment.created_at }}</small></h5>
-                {{ comment.content | linebreaks }}
-                <!--linebreaks : 다른 마크다운 등의 html은 사용되지 않더라도, 줄바꿈은 사용할 수 있게 된다.-->
-            </div>
+    <div class="media mb-4" id="comment-{{ comment.pk }}">
+        <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+        <div class="media-body">
+            {% if user.is_authenticated and comment.author == user %}
+            <a class="btn btn-sm btn-info float-right"
+               role="button"
+               id="comment-{{ comment.pk }}-update-btn"
+               href="/blog/update_comment/{{ comment.pk }}/">
+                edit
+            </a>
+            {% endif %}
+            <h5 class="mt-0">{{ comment.author.username }}&nbsp;&nbsp;&nbsp;&nbsp;
+                <small class="text-muted" style="padding-right:15px">
+                    {{ comment.created_at }}
+                </small></h5>
+            {{ comment.content | linebreaks }}
+            <!--linebreaks : 다른 마크다운 등의 html은 사용되지 않더라도, 줄바꿈은 사용할 수 있게 된다.-->
+            {% if comment.is_updated %}
+                <p class="text-muted float-right">Updated: {{ comment.updated_at }}</p>
+            {% endif %}
         </div>
-        {% endfor %}
+    </div>
+    {% endfor %}
     {% endif %}
 
 

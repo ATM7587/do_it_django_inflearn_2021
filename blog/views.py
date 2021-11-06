@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .models import Post, Category, Tag
+from .models import Post, Category, Tag, Comment # '.'은 현재 폴더를 의미함
 from .forms import CommentForm
 
 class PostList(ListView):
@@ -165,6 +165,17 @@ def new_comment(request, pk):
         return redirect(post.get_absolute_url()) # get 방식으로 요청하거나 form의 형식이 올바르지 않을 경우 현 포스트 상세페이지로 리다이렉트한다.
     else:
         raise PermissionError # 권한이 없음을 나타냄
+
+
+class CommentUpdate(LoginRequiredMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+
+    def dispatch(self, request, *args, **kwargs): # args : 여러개의 인자를 튜플형태로 가져옴 / kwargs : 키워드 형태로 가져옴 / #dispatch : get 방식인지 post방식인지를 구분해준다.
+        if request.user.is_authenticated and request.user == self.get_object().author: # 현재 접속한 유저가 게시물의 작성자일 때에만 PostUpdate 페이지로 가게 됨
+            return super(CommentUpdate, self).dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied # 다른 권한이 없으므로 200이 뜨지 않음
 
 
 #template_name = 'blog/post_detail.html'
