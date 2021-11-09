@@ -7,10 +7,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post, Category, Tag, Comment # '.'은 현재 폴더를 의미함
 from .forms import CommentForm
 
+
 class PostList(ListView):
     model = Post
     #template_name = 'blog/post_list.html'
     ordering = '-pk'
+    paginate_by = 5  # 한 페이지에 몇 개의 포스트씩을 보여줄 것인가
 
     def get_context_data(self, **kwargs): # keyword arguments
         context = super(PostList, self).get_context_data()
