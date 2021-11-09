@@ -178,6 +178,16 @@ class CommentUpdate(LoginRequiredMixin, UpdateView):
             raise PermissionDenied # 다른 권한이 없으므로 200이 뜨지 않음
 
 
+def delete_comment(request, pk):
+    comment = get_object_or_404(Comment, pk=pk) # 모델은 Comment를 가져오고 pk는 Comment의 pk이다.
+    post = comment.post
+
+    if request.user.is_authenticated and request.user == comment.author:
+        comment.delete()
+        return redirect(post.get_absolute_url())
+    else:
+        raise PermissionDenied # 인정받지 않은 유저이거나, 해당 댓글의 작성자가 아닌 경우
+
 #template_name = 'blog/post_detail.html'
 
 # Create your views here.

@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('delete_comment/<int:pk>/', views.delete_comment), # comment의 pk를 사용
     path('update_comment/<int:pk>/', views.CommentUpdate.as_view()), # comment의 pk를 사용
     path('update_post/<int:pk>/', views.PostUpdate.as_view()), # post의 pk를 사용
     path('create_post/', views.PostCreate.as_view()),
