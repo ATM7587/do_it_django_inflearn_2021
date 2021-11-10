@@ -8,6 +8,7 @@
     {% endif %}
     <h1>
         Blog
+        {% if search_info %}<small class="text-muted">&nbsp;&nbsp;{{ search_info }}</small>{% endif %}
         {% if category %}
             <span class="badge badge-secondary">{{ category }}</span> <!--views.py 의 37열 category를 사용-->
         {% endif %}

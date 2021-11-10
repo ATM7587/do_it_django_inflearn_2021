@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.text import slugify
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
@@ -189,6 +190,26 @@ def delete_comment(request, pk):
         return redirect(post.get_absolute_url())
     else:
         raise PermissionDenied # 인정받지 않은 유저이거나, 해당 댓글의 작성자가 아닌 경우
+
+
+class PostSearch(PostList):
+    paginate_by = None
+
+    def get_queryset(self):
+        q = self.kwargs['q'] # 함수형이 아니라 클래스형이기 때문에 인자를 받을 수가 없음
+        post_list = Post.objects.filter(
+            Q(title__contains=q) | Q(tags__name__contains=q) # 'q'라는 값을 포함한 데이터를 가져오도록 함
+        ).distinct() # 제목과 태그에서 동시에 검색되는 것을 방지하기 위해
+        return post_list
+
+    def get_context_data(self, **kwargs):
+        context = super(PostSearch, self).get_context_data()
+        q = self.kwargs['q']
+        context['search_info'] = f'Search: {q} ({self.get_queryset().count()})'
+
+        return context
+
+
 
 #template_name = 'blog/post_detail.html'
 
