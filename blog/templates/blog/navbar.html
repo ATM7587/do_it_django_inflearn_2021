@@ -26,6 +26,18 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if user.socialaccount_set.first.get_avatar_url %}
+                            <img class="rounded-circle"
+                                 width="25px"
+                                 src="{{ user.socialaccount_set.first.get_avatar_url }}"
+                                 alt="{{ user.username }}"> <!--구글로 로그인한 경우에는 소셜계정의 이미지를 보여준다.-->
+                        {% else %}
+                            <img class="rounded-circle"
+                                 width="25px"
+                                 src="https://doitdjango.com/avatar/id/357/95f2a2026c07e8b8/svg/{{ user.email }}"
+                                 alt="{{ user.username }}">
+                        {% endif %}
+                        &nbsp;
                         {{ user.username }}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">

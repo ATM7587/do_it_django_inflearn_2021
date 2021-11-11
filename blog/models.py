@@ -84,3 +84,9 @@ class Comment(models.Model):
     def is_updated(self):
         return self.updated_at - self.created_at > timedelta(seconds=1)
         # 처음 작성된 시간과, 마지막으로 수정된 시간이 1초 이상 차이나면 나타남
+
+    def get_avatar_url(self):
+        if self.author.socialaccount_set.exists():
+            return self.author.socialaccount_set.first().get_avatar_url()
+        else:
+            return f'https://doitdjango.com/avatar/id/357/95f2a2026c07e8b8/svg/{self.author.email}'

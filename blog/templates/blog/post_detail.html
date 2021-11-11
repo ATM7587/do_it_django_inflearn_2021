@@ -102,7 +102,7 @@
     <!-- iterator() 레코드는 전체 레코드의 일부만 DB에서 가져오므로 메모리를 절약할 수 있다. -->
     <!-- Single Comment -->
     <div class="media mb-4" id="comment-{{ comment.pk }}">
-        <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+        <img class="d-flex mr-3 rounded-circle" src="{{ comment.get_avatar_url }}" alt="{{ comment.author }}" width="60px">
         <div class="media-body">
             {% if user.is_authenticated and comment.author == user %}
             <div class="float-right">
@@ -120,7 +120,7 @@
             <!-- Modal {{ comment.pk }}-->
             <div class="modal fade" id="deleteCommentModal-{{ comment.pk }}" tabindex="-1" aria-labelledby="deleteCommentModal-{{ comment.pk }}-ModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
-                    <div class="modal-content">
+                    <div classd="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="deleteCommentModalLabel-{{ comment.pk }}">Are You Sure?</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
