@@ -67,6 +67,12 @@ class Post(models.Model):
     def get_content_markdown(self):
         return markdown(self.content) # self.content를 마크다운화한 모델을 사용함
 
+    def get_avatar_url(self):
+        if self.author.socialaccount_set.exists():
+            return self.author.socialaccount_set.first().get_avatar_url()
+        else:
+            return f'https://doitdjango.com/avatar/id/357/95f2a2026c07e8b8/svg/{self.author.email}'
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE) # 포스트가 삭제될 때 댓글도 함께 삭제된다.
