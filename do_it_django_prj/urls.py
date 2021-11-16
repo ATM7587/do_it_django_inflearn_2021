@@ -27,5 +27,6 @@ urlpatterns = [
     path('', include('single_pages.urls'))
 ]
 
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # document_root : 해당 파일을 실제 위치
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
