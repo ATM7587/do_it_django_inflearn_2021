@@ -132,3 +132,7 @@ dmypy.json
 .idea/
 migrations/
 _media/
+
+# 배포용 환경설정을 외부에 노출하지 않기 위해 git 에 등록하지 않는다.
+.env.prod
+.env.prod.db
