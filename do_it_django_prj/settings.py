@@ -145,7 +145,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '_static')
 
 MEDIA_URL = '/media/' #브라우저에서 /media/ 라는 url로 접근하면 media파일을 가져오라는 뜻
-MEDIA_ROOT = os.path.join(BASE_DIR, '_media') # 실제 파일은 _media에 저장
+MEDIA_ROOT = os.path.join(BASE_DIR, '_media') # 실제 파일은 _media에 저장s
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
